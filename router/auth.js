@@ -1,9 +1,9 @@
 const express = require('express')
-
 const router = express.Router()
-
 require('../server')
 const User = require('../model/userScheme')
+var bcrypt = require('bcryptjs');
+// var bcrypt = dcodeIO.bcrypt;
 
 
 router.get('/',(req,res) =>{
@@ -23,10 +23,11 @@ router.post('/register', async (req,res) =>{
             console.log('userExist',userExist,userExist.length)
             if(userExist.length) {
                 res.status(422).json({error:'user alredy exist'})
+                return false
             } 
             const user = new User(req.body)
             let save = await user.save()
-            console.log('save',save)
+           
             if(save){
                 res.status(200).json({message:"user registered successfuly  "})
             }
