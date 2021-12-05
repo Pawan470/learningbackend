@@ -35,7 +35,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.post("/signin", async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     if (!req.body.email || !req.body.password) {
       res.json({ message: "fill all mendatory fields" });
@@ -48,6 +48,7 @@ router.post("/signin", async (req, res) => {
     if (isMatch === true) {
       res.status(200).json(
         {
+            code:200, 
              message: "Login successfuly",
              name:userLogin.name,
              work:userLogin.work,

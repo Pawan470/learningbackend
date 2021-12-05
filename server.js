@@ -12,6 +12,8 @@ const connection_url = 'mongodb+srv://admin:axw1yGwrZTb8Mm0s@cluster0.yxc4w.mong
 app.use(express.json());
 // app.use(Cors())
 app.use(require('./router/auth'))
+app.use(require('./router/blog'))
+
 
 
 
