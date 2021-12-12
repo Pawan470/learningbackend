@@ -7,7 +7,6 @@ const Response = require("../lib/Response");
 const Message = require("../lib/errormsg");
 const catchAsync = require("../lib/catchAsync");
 mongoose = require("mongoose");
-
 let { groupValidation } = require("../lib/joivalidation");
 
 
@@ -35,67 +34,65 @@ router.post(
     const addBlog = new Blog(req.body);
     let save = await addBlog.save();
     if (save) {
-      return res.status(200).json({ message: "Blog added successfuly" });
+      //  res.status(200).json({ message: "Blog added successfuly" });
+       return Response(constants.statusCode.ok, Message.Blog.success  )
+
     }
   })
 );
 
 
 router.post('/blog/list',catchAsync(async (req,res) =>{
-  console.log(req.body)
-  if(!req.body.createdById){
-    Response(constants.statusCode.unauth, Message.Blog.createdByID  )
-
+  if(!req.body._id){
+   res.json( Response(constants.statusCode.unauth, Message.Blog.createdByID  ))
   }
-  const blogList = await Blog.find({createdById:req.body.createdById}) 
-  console.log(blogList)
-  if(blogList.length){
-    return res.json(Response(constants.statusCode.unauth, Message.Blog.alreadyExist,blogList));
-  }
-  
-}))
+  let condition = { createdById: mongoose.Types.ObjectId(req.body._id) }
 
-
-async function getDetails(){
-
-  // const blogList = await Blog.find({createdById: mongoose.Types.ObjectId('619fba5d166d3d978b8bfaac') })
-  // // using or conditon for mongoose
-  // .and([{description:'This is the another blog'},{isActive:true}])
-  // console.log(blogList)
-
-//  { description:"This is the another blog" };
- let condition =  { createdById: '61ab258320bfa92f7e83455a' }
- let createdById ="61ab258320bfa92f7e83455a"
-
-  const data = await Blog.aggregate([
-   
+ 
+  let data = await Blog.aggregate([
+    {$match:condition},
+   {
+    $lookup:
     {
-      $lookup:
-      {
-        from: 'user',
-        localField: 'createdById',
-        foreignField: '_id',
-        as: 'userData',
-      },
+      from: 'users',
+      localField: 'createdById',
+      foreignField: '_id',
+      as: 'userData',
     },
-    
-     
-    
+  },
+  { $unwind: { path: '$userData', preserveNullAndEmptyArrays: true } },
+  
+  {
+    $project: {
+      title:"$title",
+      description:"$description",
+      createdById:'$createdById',
+      userInfo:{
+        name:"$userData.name",
+        work:"$userData.work",
+        _id:"$userData._id",
+        email:"$userData.email",
+      },   
+
+    },
+  },    
   ])
+  let totalCount = await Blog.countDocuments(condition)
+
+
+  console.log(data)
+if(data){
+  res.json( Response(constants.statusCode.ok, Message.Blog.successData,data,totalCount  ))
+
+}else{
+  res.json( Response(constants.statusCode.ok, Message.Blog.NoRecord,data ,totalCount ))
+}
+  console.log(data)
+
+}))
+ 
 
 
 
-
-
-
-
-
-   
-
-
-  console.log('data',data)
-
-} 
-getDetails()
 
 module.exports = router;

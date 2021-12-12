@@ -11,7 +11,7 @@ const blogSchema = new mongoose.Schema({
         type:String,
         required:true,
     },
-    createdById: { type: mongoose.Schema.Types.ObjectId, required: true  },
+    createdById: { type:  mongoose.Schema.Types.ObjectId, required: true  },
     // createdById:{ type: mongoose.Schema.ObjectId, required: true},
     isActive:{
         type:Boolean,

@@ -1,6 +1,9 @@
 const express = require("express");
 const router = express.Router();
 require("../server");
+const constants = require("../lib/constants");
+const Response = require("../lib/Response");
+const Message = require("../lib/errormsg");
 const User = require("../model/userScheme");
 var bcrypt = require("bcryptjs");
 // var bcrypt = dcodeIO.bcrypt;
@@ -10,7 +13,6 @@ router.get("/", (req, res) => {
 });
 
 router.post("/register", async (req, res) => {
-  console.log(req.body);
   const { name, email, phone, work, password, cpassword } = req.body;
   if (!name || !email || !phone || !work || !password || !cpassword) {
     console.log("not form valid error");
@@ -46,14 +48,14 @@ router.post("/login", async (req, res) => {
     const isMatch = await bcrypt.compare(req.body.password, userLogin.password);
 
     if (isMatch === true) {
-      res.status(200).json(
-        {
-            code:200, 
-             message: "Login successfuly",
-             name:userLogin.name,
-             work:userLogin.work,
-             _id:userLogin._id
-     });
+      
+     return res.json(Response(constants.statusCode.ok, Message.Blog.alreadyExist.Login,{
+       message: "Login successfuly",
+       name:userLogin.name,
+       work:userLogin.work,
+       _id:userLogin._id
+}));
+
     } else {
       res.status(422).json({ message: "Email and Password is wrong" });
     }
